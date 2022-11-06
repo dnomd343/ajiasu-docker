@@ -1,4 +1,4 @@
-# Ajiasu
+# 爱加速
 
 [Official Site](https://www.91ajs.com/)
 

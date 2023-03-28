@@ -1,8 +1,6 @@
-# 爱加速容器镜像
+# AJiaSu Docker
 
-> `Ajiasu` is a proxy tool specifically for the China region, with a large selection of cities that you can use to change your IP address.
-
-[Official Site](https://www.91ajs.com/)
+> The [`ajiasu`](https://www.91ajs.com/) is a proxy tool specifically for the China region, with a large selection of cities that you can use to change your IP address.
 
 ## Basic Option
 
@@ -30,7 +28,11 @@ up_down [SCRIPT_FILE]
 
 ## Quick Start
 
-First choose a working directory, and create a file `ajiasu.conf` below. It include username and password, the template is as follows:
+After the following few steps, the `ajiasu` container will be working on your system. Before that, make sure `docker` and `docker-compose` are installed.
+
+### Preparation
+
+Choose a working directory, and create a file named `ajiasu.conf` below. It include username and password, the template is as follows:
 
 ```ini
 user [YOUR_USERNAME]
@@ -40,57 +42,138 @@ protocol lwip
 cache_dir /etc/ajiasu
 ```
 
-Second, login your account:
+### Login
 
-```bash
-$ docker run --rm -it \
-  --volume ${YOUR_WORK_DIR}:/etc/ajiasu/ \
-  --volume ${YOUR_WORK_DIR}/ajiasu.conf:/etc/ajiasu.conf \
-  dnomd343/ajiasu login
-···
-Account: ···
-Logging in ...
-Login done.
-=====================================================
-Web Site: https://www.91ajs.com
-Login Result: OK
-Membership: 爱加速会员
-Expiration: ...
-=====================================================
+Create `login.yml` in the working directory and write these contents:
+
+```yaml
+version: '3'
+services:
+  ajiasu:
+    image: dnomd343/ajiasu
+    command: [login]
+    volumes:
+      - ./:/etc/ajiasu/
+      - ./ajiasu.conf:/etc/ajiasu.conf
 ```
 
-Then, list all nodes:
+Execute the login command, if successful, there will be an output similar to the following:
 
 ```bash
-$ docker run --rm -it \
-  --volume ${YOUR_WORK_DIR}:/etc/ajiasu/ \
-  --volume ${YOUR_WORK_DIR}/ajiasu.conf:/etc/ajiasu.conf \
-  dnomd343/ajiasu list
-···
-    id     Status     Name (Comment)
-vvn-2076-264 ok         镇江 #1
-vvn-2081-23  ok         绍兴 #1
-vvn-2086-308 ok         南通 #1
-vvn-2106-527 ok         丽水 #1
-···
-···
-···
-vvn-5317-6877 ok        昭通 #2
-vvn-5318-6878 ok        昭通 #1
-vvn-5319-6881 ok        海南藏族自治州 #2
-vvn-5320-6880 ok        海南藏族自治州 #1
-=====================================================
-···
+$ docker-compose -f login.yml up
+Creating network "ajiasu_default" with the default driver
+Creating ajiasu_ajiasu_1 ... done
+Attaching to ajiasu_ajiasu_1
+ajiasu_1  | ajiasu 4.1.1.0 (core:20210315-1730)
+ajiasu_1  | Load config file: /etc/ajiasu.conf
+ajiasu_1  | Command: login
+ajiasu_1  | Account: ···
+ajiasu_1  | Logging in ...
+ajiasu_1  | Login done.
+ajiasu_1  | =====================================================
+ajiasu_1  | Web Site: https://www.91ajs.com
+ajiasu_1  | Login Result: OK
+ajiasu_1  | Membership: 爱加速会员
+ajiasu_1  | Expiration: ···
+ajiasu_1  | =====================================================
+ajiasu_ajiasu_1 exited with code 0
+
+# This command is optional
+$ docker-compose -f login.yml down
+Removing ajiasu_ajiasu_1 ... done
+Removing network ajiasu_default
 ```
 
-Last, select a node, and then connect it:
+### Listing
+
+Create `list.yml` in the working directory and write these contents:
+
+```yaml
+version: '3'
+services:
+  ajiasu:
+    image: dnomd343/ajiasu
+    command: [list]
+    volumes:
+      - ./:/etc/ajiasu/
+      - ./ajiasu.conf:/etc/ajiasu.conf
+```
+
+Execute the list command, if successful, there will be an output similar to the following:
 
 ```bash
-$ docker run -d --privileged --name ajiasu \
-  --restart always --network host \
-  --volume ${YOUR_WORK_DIR}:/etc/ajiasu/ \
-  --volume ${YOUR_WORK_DIR}/ajiasu.conf:/etc/ajiasu.conf \
-  dnomd343/ajiasu connect vvn-...
+$ docker-compose -f list.yml up
+Creating network "ajiasu_default" with the default driver
+Creating ajiasu_ajiasu_1 ... done
+Attaching to ajiasu_ajiasu_1
+ajiasu_1  | ajiasu 4.1.1.0 (core:20210315-1730)
+ajiasu_1  | Load config file: /etc/ajiasu.conf
+ajiasu_1  | Command: list
+ajiasu_1  | Account: ···
+ajiasu_1  |       id Status     Name (Comment)
+ajiasu_1  | vvn-2076-264 ok         镇江 #1
+ajiasu_1  | vvn-2081-23 ok         绍兴 #1
+ajiasu_1  | vvn-2086-308 ok         南通 #1
+ajiasu_1  | vvn-2106-527 ok         丽水 #1
+ajiasu_1  | vvn-2111-684 ok         温州 #1
+ajiasu_1  | vvn-2226-4013 ok         徐州 #2
+ajiasu_1  | vvn-2431-4824 ok         厦门 #21
+ajiasu_1  | vvn-2441-1877 ok         沈阳 #3
+···
+···
+···
+ajiasu_1  | vvn-5318-6878 ok         昭通 #1
+ajiasu_1  | vvn-5319-6881 ok         海南藏族自治州 #2
+ajiasu_1  | vvn-5320-6880 ok         海南藏族自治州 #1
+ajiasu_1  | =====================================================
+ajiasu_1  | Web Site: https://www.91ajs.com
+ajiasu_1  | Login Result: OK
+ajiasu_1  | Membership: 爱加速会员
+ajiasu_1  | Expiration: ···
+ajiasu_1  | =====================================================
+ajiasu_ajiasu_1 exited with code 0
+
+# This command is optional
+$ docker-compose -f list.yml down
+Removing ajiasu_ajiasu_1 ... done
+Removing network ajiasu_default
+```
+
+### Connect
+
+Select a node and modify `ajiasu.conf` file, add the bottom line, the modified file is as follows:
+
+```ini
+user [YOUR_USERNAME]
+pass [YOUR_PASSWORD]
+
+protocol lwip
+cache_dir /etc/ajiasu
+connect vvn-...
+```
+
+Create `compose.yml` in the working directory and write these contents:
+
+```yml
+version: '3'
+services:
+  ajiasu:
+    image: dnomd343/ajiasu
+    container_name: ajiasu
+    network_mode: host
+    privileged: true
+    restart: always
+    command: [connect]
+    volumes:
+      - ./:/etc/ajiasu/
+      - ./ajiasu.conf:/etc/ajiasu.conf
+```
+
+Executing the following command will start the `ajiasu` service:
+
+```bash
+$ docker-compose up -d
+Creating ajiasu ... done
 ```
 
 If nothing unexcepted, `ajiasu` is already working normally, you can check the IP to confirm:
@@ -110,62 +193,76 @@ Scope: ···
 Detail: 重庆市联通
 ```
 
-If something gose wrong, you can check the logs:
+If something goes wrong, you can check the logs:
 
 ```bash
-$ docker logs -f ajiasu
+$ docker-compose logs
+Attaching to ajiasu
 ···
 ```
 
-It is more recommended that you use `docker-compose` to start the service, create `docker-compose.yml` file under the working directory with following content:
+While it is running, you can quickly list all nodes:
 
-```yaml
-version: '3'
-services:
-  ajiasu:
-    image: dnomd343/ajiasu
-    container_name: ajiasu
-    network_mode: host
-    privileged: true
-    restart: always
-    tty: true
-    command:
-      - connect
-      - vvn-...
-    volumes:
-      - ${YOUR_WORK_DIR}:/etc/ajiasu/
-      - ${YOUR_WORK_DIR}/ajiasu.conf:/etc/ajiasu.conf
+```bash
+$ docker exec ajiasu ajiasu list
+ajiasu 4.1.1.0 (core:20210315-1730)
+Load config file: /etc/ajiasu.conf
+Command: list
+Account: ···
+      id Status     Name (Comment)
+vvn-2076-264 ok         镇江 #1
+vvn-2081-23 ok         绍兴 #1
+vvn-2086-308 ok         南通 #1
+vvn-2106-527 ok         丽水 #1
+vvn-2111-684 ok         温州 #1
+vvn-2226-4013 ok         徐州 #2
+vvn-2431-4824 ok         厦门 #21
+vvn-2441-1877 ok         沈阳 #3
+···
+···
+···
+vvn-5318-6878 ok         昭通 #1
+vvn-5319-6881 ok         海南藏族自治州 #2
+vvn-5320-6880 ok         海南藏族自治州 #1
+=====================================================
+Web Site: https://www.91ajs.com
+Login Result: OK
+Membership: 爱加速会员
+Expiration: ···
+=====================================================
 ```
 
-Start the container:
+### Exit
+
+When you do not need the `ajiasu` service, execute the following command to close it:
+
+```bash
+$ docker-compose down
+Stopping ajiasu ... done
+Removing ajiasu ... done
+```
+
+You don't need to repeat the login and listing process at the next startup. If you need to switch nodes, just modify the last line of the `ajiasu.conf` file and execute the following command:
 
 ```bash
 $ docker-compose up -d
 Creating ajiasu ... done
-```
 
-Quickly list all nodes:
+# Need to switch nodes -> modify ajiasu.conf
 
-```bash
-$ docker exec ajiasu ajiasu list
-···
-    id     Status     Name (Comment)
-vvn-2076-264 ok         镇江 #1
-vvn-2081-23  ok         绍兴 #1
-vvn-2086-308 ok         南通 #1
-vvn-2106-527 ok         丽水 #1
-···
-···
-···
-vvn-5317-6877 ok        昭通 #2
-vvn-5318-6878 ok        昭通 #1
-vvn-5319-6881 ok        海南藏族自治州 #2
-vvn-5320-6880 ok        海南藏族自治州 #1
-=====================================================
-···
+$ docker-compose restart
+Restarting ajiasu ... done
 ```
 
 ## Build
+
+You can build the container image yourself if necessary.
+
+```bash
+docker build -t ajiasu https://github.com/dnomd343/ajiasu-docker.git
+```
+
+At the same time, it is also possible to perform a cross-build.
 
 ```bash
 docker buildx build -t dnomd343/ajiasu --platform="linux/amd64,linux/arm64,linux/386,linux/arm/v7" https://github.com/dnomd343/ajiasu-docker.git --push

@@ -15,8 +15,8 @@ ajiasu connect "Shanghai 1*"
 Config file options:
 
 ```ini
-user your-account-name
-pass your-password
+user [USERNAME]
+pass [PASSWORD]
 
 cache_dir [CACHE_DIR]
 connect [SERVER_NAME]
@@ -248,7 +248,7 @@ You don't need to repeat the login and listing process at the next startup. If y
 $ docker-compose up -d
 Creating ajiasu ... done
 
-# Need to switch nodes -> modify ajiasu.conf
+# Switch node -> modify ajiasu.conf first
 
 $ docker-compose restart
 Restarting ajiasu ... done

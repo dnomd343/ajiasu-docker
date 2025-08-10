@@ -1,4 +1,4 @@
-ARG ALPINE="alpine:3.17"
+ARG ALPINE="alpine:3.22"
 
 FROM --platform=${BUILDPLATFORM} ${ALPINE} AS ajiasu
 RUN wget -O- https://www.91ajs.com/download | grep -oEm1 '(\d[0-9.]+\d).tar.gz' > VERSION
